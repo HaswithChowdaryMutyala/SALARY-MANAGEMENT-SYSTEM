@@ -111,3 +111,68 @@ LEFT JOIN Bonus b
     ON s.EmployeeID = b.EmployeeID 
     AND MONTH(b.BonusDate) = s.SalaryMonth 
     AND YEAR(b.BonusDate) = s.SalaryYear;
+    -- 1. Find employees who joined in a specific year
+SELECT Name, DateOfJoining
+FROM Employee
+WHERE YEAR(DateOfJoining) = 2022;
+
+-- 2. Get the total number of employees in each department
+SELECT d.DepartmentName, COUNT(e.EmployeeID) AS EmployeeCount
+FROM Department d
+LEFT JOIN Employee e ON d.DepartmentID = e.DepartmentID
+GROUP BY d.DepartmentName;
+
+-- 3. Find employees with a net salary above a certain amount
+SELECT e.Name, s.NetSalary
+FROM Salary s
+JOIN Employee e ON s.EmployeeID = e.EmployeeID
+WHERE s.NetSalary > 60000;
+
+-- 4. List all employees with their department and bonus details (if any)
+SELECT e.Name, d.DepartmentName, b.BonusAmount, b.BonusDate
+FROM Employee e
+LEFT JOIN Department d ON e.DepartmentID = d.DepartmentID
+LEFT JOIN Bonus b ON e.EmployeeID = b.EmployeeID;
+
+-- 5. Get average salary by department
+SELECT d.DepartmentName, AVG(s.NetSalary) AS AverageSalary
+FROM Salary s
+JOIN Employee e ON s.EmployeeID = e.EmployeeID
+JOIN Department d ON e.DepartmentID = d.DepartmentID
+GROUP BY d.DepartmentName;
+
+-- 6. Find the highest paid employee in each department
+SELECT d.DepartmentName, e.Name, s.NetSalary
+FROM Salary s
+JOIN Employee e ON s.EmployeeID = e.EmployeeID
+JOIN Department d ON e.DepartmentID = d.DepartmentID
+WHERE s.NetSalary = (
+    SELECT MAX(s2.NetSalary)
+    FROM Salary s2
+    JOIN Employee e2 ON s2.EmployeeID = e2.EmployeeID
+    WHERE e2.DepartmentID = d.DepartmentID
+);
+
+-- 7. Show employees who have not received any bonus
+SELECT e.Name
+FROM Employee e
+LEFT JOIN Bonus b ON e.EmployeeID = b.EmployeeID
+WHERE b.EmployeeID IS NULL;
+
+-- 8. Get the total bonus amount paid in a specific month and year
+SELECT SUM(BonusAmount) AS TotalBonus
+FROM Bonus
+WHERE MONTH(BonusDate) = 8 AND YEAR(BonusDate) = 2025;
+
+-- 9. List employees with their full salary details for a specific month and year
+SELECT e.Name, d.DepartmentName, s.BasicPay, s.HRA, s.Allowances, s.Deductions, s.NetSalary
+FROM Salary s
+JOIN Employee e ON s.EmployeeID = e.EmployeeID
+JOIN Department d ON e.DepartmentID = d.DepartmentID
+WHERE s.SalaryMonth = 9 AND s.SalaryYear = 2025;
+
+-- 10. Find employees who joined before a specific date
+SELECT Name, DateOfJoining
+FROM Employee
+WHERE DateOfJoining < '2022-01-01';
+
